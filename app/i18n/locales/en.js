@@ -1,16 +1,16 @@
 export default {
-  login: 'Login',
-  signup: 'Sign Up',
+  login: 'Masuk',
+  signup: 'Daftar',
 
-  email: 'Email',
-  password: 'Password',
+  email: 'Masukkan Email',
+  password: 'Masukkan Password',
 
   chat: 'Chat',
-  message: 'Message',
+  message: 'Pesan',
 
   error: 'Error',
 
-  you: 'You',
+  you: 'Anda',
 
-  placeholder: 'There are no messages yet',
+  placeholder: 'Tidak Ada Pesan Saat Ini',
 }

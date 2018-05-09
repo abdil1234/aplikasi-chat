@@ -1,60 +1,80 @@
 import * as types from './actionTypes'
+import axios from 'axios'
 import firebaseService from '../../services/firebase'
 
+
 export const restoreSession = () => {
-  return (dispatch) => {
+  return (dispatch,getState) => {
     dispatch(sessionRestoring())
 
-    let unsubscribe = firebaseService.auth()
-      .onAuthStateChanged(user => {
-        if (user) {
-          dispatch(sessionSuccess(user))
-          unsubscribe()
+        if (getState().session.user) {
+          dispatch(sessionSuccess(getState().session.user))
         } else {
           dispatch(sessionLogout())
-          unsubscribe()
         }
-      })
+      
   }
 }
 
 export const loginUser = (email, password) => {
-  return (dispatch) => {
+  return (dispatch,getState) => {
     dispatch(sessionLoading())
 
-    firebaseService.auth()
-      .signInWithEmailAndPassword(email, password)
-      .catch(error => {
-        dispatch(sessionError(error.message))
-      })
+    axios.get('http://192.168.43.70:3000/user?email='+email+'&password='+password)
+    .then(function (response) {
+      let data = response.data.data[0];
+     
+      dispatch(sessionSuccess(data))
+     
+    })
+    .catch(function (error) {
+      dispatch(sessionError(error));
+    });
 
-    let unsubscribe = firebaseService.auth()
-      .onAuthStateChanged(user => {
-        if (user) {
-          dispatch(sessionSuccess(user))
-          unsubscribe()
-        }
-      })
+    // firebaseService.auth()
+    //   .signInWithEmailAndPassword(email, password)
+    //   .catch(error => {
+    //     dispatch(sessionError(error.message))
+    //   })
+
+    // let unsubscribe = firebaseService.auth()
+    //   .onAuthStateChanged(user => {
+    //     if (user) {
+    //       dispatch(sessionSuccess(user))
+    //       unsubscribe()
+    //     }
+    //   })
   }
 }
 
 export const signupUser = (email, password) => {
   return (dispatch) => {
     dispatch(sessionLoading())
+    axios.post('http://192.168.43.70:3000/user', {
+      email: email,
+      password: password,
+    })
+    .then(function (response) {
+      // alert(response.data.id);
+      dispatch(sessionSuccess(response.data))
+    })
+    .catch(function (error) {
+      dispatch(sessionError(error));
+    });
 
-    firebaseService.auth()
-      .createUserWithEmailAndPassword(email, password)
-      .catch(error => {
-        dispatch(sessionError(error.message));
-      })
+    // firebaseService.auth()
+    //   .createUserWithEmailAndPassword(email, password)
+    //   .catch(error => {
+    //     dispatch(sessionError(error.message));
+    //   })
 
-    let unsubscribe = firebaseService.auth()
-      .onAuthStateChanged(user => {
-        if (user) {
-          dispatch(sessionSuccess(user))
-          unsubscribe()
-        }
-      })
+    // let unsubscribe = firebaseService.auth()
+    //   .onAuthStateChanged(user => {
+    //     if (user) {
+    //       dispatch(sessionSuccess(user))
+    //       unsubscribe()
+    //     }
+    //   })
   }
 }
 

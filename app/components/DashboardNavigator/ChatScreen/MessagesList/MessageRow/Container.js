@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
+
 
 import MessageRow from './Component'
 
@@ -8,7 +10,7 @@ import firebaseService from '../../../../../services/firebase'
 class MessageRowContainer extends Component {
 
   render() {
-    const isCurrentUser = firebaseService.auth().currentUser.email == this.props.message.user.email;
+    const isCurrentUser = this.props.user_id==this.props.message.user_id;
     return (
       <MessageRow
         message={this.props.message}
@@ -17,8 +19,13 @@ class MessageRowContainer extends Component {
   }
 }
 
+const mapStateToProps = state => ({
+  user_id: state.session.user,
+})
+
 MessageRowContainer.propTypes = {
   message: PropTypes.object.isRequired,
 }
 
-export default MessageRowContainer
+export default connect(mapStateToProps)(MessageRowContainer)
+

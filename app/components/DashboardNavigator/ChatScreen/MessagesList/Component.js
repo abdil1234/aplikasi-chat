@@ -40,15 +40,15 @@ class MessageListComponent extends Component {
   }
 
   render() {
-    const data = this.props.data
-    const contentContainerStyle = data.length ? null : styles.flatlistContainerStyle
+    const data = this.props.data;
+    const contentContainerStyle = data.length ? null : styles.flatlistContainerStyle;
     return (
       <FlatList
         ref={(c) => { this.flatList = c }}
         style={styles.container}
         contentContainerStyle={contentContainerStyle}
         data={data}
-        keyExtractor={item => item.time}
+        keyExtractor={item => item.createAt}
         renderItem={this.renderItem}
         getItemLayout={this.itemLayout}
         ListEmptyComponent={this.emptyList}

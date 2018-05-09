@@ -14,7 +14,7 @@ const session = (state = initialState, action) => {
     case types.SESSION_LOADING:
       return { ...state, restoring: false, loading: true, error: null }
     case types.SESSION_SUCCESS:
-      return { restoring: false, loading: false, user: action.user, error: null }
+      return { restoring: false, loading: false, user: action.user.id, error: null }
     case types.SESSION_ERROR:
       return { restoring: false, loading: false, user: null, error: action.error }
     case types.SESSION_LOGOUT:

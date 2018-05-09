@@ -1,47 +1,52 @@
 import * as types from './actionTypes'
 import firebaseService from '../../services/firebase'
+import {session} from '../session/reducer'
+import axios from 'axios'
 
-const FIREBASE_REF_MESSAGES = firebaseService.database().ref('Messages')
-const FIREBASE_REF_MESSAGES_LIMIT = 20
 
 export const sendMessage = message => {
-  return (dispatch) => {
+  return (dispatch,getState) => {
     dispatch(chatMessageLoading())
-
-    let currentUser = firebaseService.auth().currentUser
-    let createdAt = new Date().getTime()
-    let chatMessage = {
-      text: message,
-      createdAt: createdAt,
-      user: {
-        id: currentUser.uid,
-        email: currentUser.email
-      }
-    }
-
-    FIREBASE_REF_MESSAGES.push().set(chatMessage, (error) => {
-      if (error) {
-        dispatch(chatMessageError(error.message))
-      } else {
-        dispatch(chatMessageSuccess())
-      }
+    axios.post('http://192.168.43.70:3000/message', {
+      user_id: getState().session.user,
+      message: message
     })
+    .then(function (response) {
+      dispatch(chatMessageSuccess())
+      loadMessages();
+    })
+    .catch(function (error) {
+     
+      dispatch(chatMessageError(error));
+    });
+    
+
+    
   }
 }
 
 export const updateMessage = text => {
   return (dispatch) => {
+    // alert(text);
     dispatch(chatUpdateMessage(text))
   }
 }
 
 export const loadMessages = () => {
   return (dispatch) => {
-    FIREBASE_REF_MESSAGES.limitToLast(FIREBASE_REF_MESSAGES_LIMIT).on('value', (snapshot) => {
-      dispatch(loadMessagesSuccess(snapshot.val()))
-    }, (errorObject) => {
-      dispatch(loadMessagesError(errorObject.message))
+    axios.get('http://192.168.43.70:3000/message')
+    .then(function (response) {
+      dispatch(loadMessagesSuccess(response.data))
     })
+    .catch(function (error) {
+      
+      dispatch(loadMessagesError(error));
+    });
+    // FIREBASE_REF_MESSAGES.limitToLast(FIREBASE_REF_MESSAGES_LIMIT).on('value', (snapshot) => {
+    //   dispatch(loadMessagesSuccess(snapshot.val()))
+    // }, (errorObject) => {
+    //   dispatch(loadMessagesError(errorObject.message))
+    // })
   }
 }
 
