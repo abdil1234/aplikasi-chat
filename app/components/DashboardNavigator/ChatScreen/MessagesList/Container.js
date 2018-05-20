@@ -9,8 +9,11 @@ import MessageListComponent from './Component'
 import io from 'socket.io-client';
 import feathers from '@feathersjs/client';
 import socketio from '@feathersjs/socketio-client';
+import API_URL from '../../../../services/api'
 
-const socket = io('http://192.168.43.70:3000',{
+
+
+const socket = io(API_URL,{
   transports: ['websocket'],
   forceNew: true
 });

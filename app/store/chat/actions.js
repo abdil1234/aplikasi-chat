@@ -2,12 +2,14 @@ import * as types from './actionTypes'
 import firebaseService from '../../services/firebase'
 import {session} from '../session/reducer'
 import axios from 'axios'
+import API_URL from '../../services/api'
+
 
 
 export const sendMessage = message => {
   return (dispatch,getState) => {
     dispatch(chatMessageLoading())
-    axios.post('http://192.168.43.70:3000/message', {
+    axios.post(`${API_URL}/message`, {
       user_id: getState().session.user,
       message: message
     })
@@ -34,7 +36,7 @@ export const updateMessage = text => {
 
 export const loadMessages = () => {
   return (dispatch) => {
-    axios.get('http://192.168.43.70:3000/message')
+    axios.get(`${API_URL}/message`)
     .then(function (response) {
       dispatch(loadMessagesSuccess(response.data))
     })

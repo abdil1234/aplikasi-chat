@@ -5,11 +5,14 @@
   },
   "plugins": [
     "react",
-    "react-native"
+    "react-native",
+    // "jsx-a11y",
+    // "import"
   ],
   "extends": [
     "eslint:recommended",
-    "plugin:react/recommended"
+    "plugin:react/recommended",
+    // "airbnb"
   ],
   "rules": {
     // overrides
@@ -18,7 +21,7 @@
     "ecmaVersion": 6,
     "sourceType": "module",
     "ecmaFeatures": {
-      "jsx": true,
+      "jsx": true
     }
-  },
+  }
 }

@@ -1,6 +1,9 @@
 import * as types from './actionTypes'
 import axios from 'axios'
 import firebaseService from '../../services/firebase'
+import API_URL from '../../services/api'
+
+
 
 
 export const restoreSession = () => {
@@ -19,8 +22,9 @@ export const restoreSession = () => {
 export const loginUser = (email, password) => {
   return (dispatch,getState) => {
     dispatch(sessionLoading())
-
-    axios.get('http://192.168.43.70:3000/user?email='+email+'&password='+password)
+    alert(API_URL);
+    let url = `${API_URL}/user?email=${email}&password=${password}`
+    axios.get(url)
     .then(function (response) {
       let data = response.data.data[0];
      
@@ -50,7 +54,7 @@ export const loginUser = (email, password) => {
 export const signupUser = (email, password) => {
   return (dispatch) => {
     dispatch(sessionLoading())
-    axios.post('http://192.168.43.70:3000/user', {
+    axios.post(`${API_URL}/user`, {
       email: email,
       password: password,
     })
