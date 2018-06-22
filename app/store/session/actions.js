@@ -1,7 +1,16 @@
 import * as types from './actionTypes'
 import axios from 'axios'
-import firebaseService from '../../services/firebase'
 import API_URL from '../../services/api'
+import feathers from '@feathersjs/feathers';
+import rest from '@feathersjs/rest-client';
+import auth from '@feathersjs/authentication-client';
+import superagent from 'superagent';
+import localStorage from 'localstorage-memory';
+import { AsyncStorage} from 'react-native'
+const feathersClient = feathers();
+feathersClient.configure(rest(API_URL).superagent(superagent))
+      .configure(auth({ storage: AsyncStorage }));
+
 
 
 
@@ -10,8 +19,11 @@ export const restoreSession = () => {
   return (dispatch,getState) => {
     dispatch(sessionRestoring())
 
-        if (getState().session.user) {
-          dispatch(sessionSuccess(getState().session.user))
+        let jwt = feathersClient.passport.getJWT(); 
+        alert(JSON.stringify(jwt));       
+        if (jwt) {
+          dispatch(sessionSuccess(jwt.id))
+          // alert("hai abil");
         } else {
           dispatch(sessionLogout())
         }
@@ -22,78 +34,56 @@ export const restoreSession = () => {
 export const loginUser = (email, password) => {
   return (dispatch,getState) => {
     dispatch(sessionLoading())
-    alert(API_URL);
-    let url = `${API_URL}/user?email=${email}&password=${password}`
-    axios.get(url)
-    .then(function (response) {
-      let data = response.data.data[0];
-     
-      dispatch(sessionSuccess(data))
-     
+    feathersClient.authenticate({
+      strategy: 'local',
+      email: email,
+      password: password
     })
-    .catch(function (error) {
+    .then(response => {
+      console.log('Authenticated!', response);
+      return feathersClient.passport.verifyJWT(response.accessToken);
+
+      
+    })
+    .then(payload => {
+      console.log('JWT Payload', payload);
+      return feathersClient.service('users').get(payload.userId);
+    })
+    .then(user => {
+      feathersClient.set('user', user);
+      dispatch(sessionSuccess(user.id))
+      console.log('User', feathersClient.get('user'));
+    })
+    .catch(function(error){
       dispatch(sessionError(error));
     });
-
-    // firebaseService.auth()
-    //   .signInWithEmailAndPassword(email, password)
-    //   .catch(error => {
-    //     dispatch(sessionError(error.message))
-    //   })
-
-    // let unsubscribe = firebaseService.auth()
-    //   .onAuthStateChanged(user => {
-    //     if (user) {
-    //       dispatch(sessionSuccess(user))
-    //       unsubscribe()
-    //     }
-    //   })
   }
 }
 
 export const signupUser = (email, password) => {
   return (dispatch) => {
     dispatch(sessionLoading())
-    axios.post(`${API_URL}/user`, {
+    axios.post(`${API_URL}/users`, {
       email: email,
       password: password,
     })
     .then(function (response) {
-      // alert(response.data.id);
       dispatch(sessionSuccess(response.data))
     })
     .catch(function (error) {
       dispatch(sessionError(error));
-    });
-
-    // firebaseService.auth()
-    //   .createUserWithEmailAndPassword(email, password)
-    //   .catch(error => {
-    //     dispatch(sessionError(error.message));
-    //   })
-
-    // let unsubscribe = firebaseService.auth()
-    //   .onAuthStateChanged(user => {
-    //     if (user) {
-    //       dispatch(sessionSuccess(user))
-    //       unsubscribe()
-    //     }
-    //   })
+    });    
   }
 }
 
 export const logoutUser = () => {
   return (dispatch) => {
+    feathersClient.logout();
     dispatch(sessionLoading())
 
-    firebaseService.auth()
-      .signOut()
-      .then(() => {
-        dispatch(sessionLogout())
-      })
-      .catch(error => {
-        dispatch(sessionError(error.message))
-      })
+    
+    dispatch(sessionLogout())
+      
   }
 }
 

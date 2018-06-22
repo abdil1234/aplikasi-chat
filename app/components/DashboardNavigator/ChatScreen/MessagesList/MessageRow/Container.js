@@ -5,7 +5,6 @@ import { connect } from 'react-redux'
 
 import MessageRow from './Component'
 
-import firebaseService from '../../../../../services/firebase'
 
 class MessageRowContainer extends Component {
 

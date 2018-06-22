@@ -1,5 +1,4 @@
 import * as types from './actionTypes'
-import firebaseService from '../../services/firebase'
 import {session} from '../session/reducer'
 import axios from 'axios'
 import API_URL from '../../services/api'
@@ -17,8 +16,7 @@ export const sendMessage = message => {
       dispatch(chatMessageSuccess())
       loadMessages();
     })
-    .catch(function (error) {
-     
+    .catch(function (error) {     
       dispatch(chatMessageError(error));
     });
     
@@ -29,7 +27,6 @@ export const sendMessage = message => {
 
 export const updateMessage = text => {
   return (dispatch) => {
-    // alert(text);
     dispatch(chatUpdateMessage(text))
   }
 }
@@ -43,12 +40,7 @@ export const loadMessages = () => {
     .catch(function (error) {
       
       dispatch(loadMessagesError(error));
-    });
-    // FIREBASE_REF_MESSAGES.limitToLast(FIREBASE_REF_MESSAGES_LIMIT).on('value', (snapshot) => {
-    //   dispatch(loadMessagesSuccess(snapshot.val()))
-    // }, (errorObject) => {
-    //   dispatch(loadMessagesError(errorObject.message))
-    // })
+    });    
   }
 }
 

@@ -30,7 +30,7 @@ class MessagesListContainer extends Component {
 
   componentDidMount() {
     this.props.loadMessages();
-    messages.on('created',(message)=>this.props.loadMessages());
+    messages.on('created', (message) => this.props.loadMessages());
   }
   
   render() {
