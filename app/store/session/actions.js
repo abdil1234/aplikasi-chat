@@ -6,7 +6,9 @@ import rest from '@feathersjs/rest-client';
 import auth from '@feathersjs/authentication-client';
 import superagent from 'superagent';
 import localStorage from 'localstorage-memory';
-import { AsyncStorage} from 'react-native'
+import { AsyncStorage} from 'react-native';
+import decode from 'jwt-decode';
+
 const feathersClient = feathers();
 feathersClient.configure(rest(API_URL).superagent(superagent))
       .configure(auth({ storage: AsyncStorage }));
@@ -19,14 +21,22 @@ export const restoreSession = () => {
   return (dispatch,getState) => {
     dispatch(sessionRestoring())
 
-        let jwt = feathersClient.passport.getJWT(); 
-        alert(JSON.stringify(jwt));       
-        if (jwt) {
-          dispatch(sessionSuccess(jwt.id))
-          // alert("hai abil");
-        } else {
-          dispatch(sessionLogout())
+    const jwt = feathersClient.passport.getJWT().then(function(response){
+        const user =decode(response);
+        if (user.userId) {
+          dispatch(sessionSuccess(user.userId))
+        }else {
+          alert("keluar");
         }
+    })
+    .catch(function(error){
+      dispatch(sessionLogout())
+      
+    });;
+
+
+
+    
       
   }
 }
