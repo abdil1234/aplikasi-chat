@@ -31,11 +31,7 @@ export const restoreSession = () => {
     .catch(function(){
       dispatch(sessionLogout())
       
-    });
-
-
-
-    
+    });    
       
   }
 }
@@ -66,7 +62,7 @@ export const loginUser = (email, password) => {
       //console.log('User', feathersClient.get('user'));
     })
     .catch(function(error){
-      dispatch(sessionError(error));
+      dispatch(sessionError(error.message));      
     });
   }
 }
@@ -82,7 +78,7 @@ export const signupUser = (email, password) => {
       dispatch(sessionSuccess(response.data.id))
     })
     .catch(function (error) {
-      dispatch(sessionError(error));
+      dispatch(sessionError(error.message));
     });    
   }
 }
