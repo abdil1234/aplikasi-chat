@@ -5,7 +5,6 @@ import feathers from '@feathersjs/feathers';
 import rest from '@feathersjs/rest-client';
 import auth from '@feathersjs/authentication-client';
 import superagent from 'superagent';
-import localStorage from 'localstorage-memory';
 import { AsyncStorage} from 'react-native';
 import decode from 'jwt-decode';
 
@@ -18,10 +17,10 @@ feathersClient.configure(rest(API_URL).superagent(superagent))
 
 
 export const restoreSession = () => {
-  return (dispatch,getState) => {
+  return (dispatch) => {
     dispatch(sessionRestoring())
 
-    const jwt = feathersClient.passport.getJWT().then(function(response){
+    feathersClient.passport.getJWT().then(function(response){
         const user =decode(response);
         if (user.userId) {
           dispatch(sessionSuccess(user.userId))
@@ -29,10 +28,10 @@ export const restoreSession = () => {
           alert("keluar");
         }
     })
-    .catch(function(error){
+    .catch(function(){
       dispatch(sessionLogout())
       
-    });;
+    });
 
 
 
@@ -42,7 +41,7 @@ export const restoreSession = () => {
 }
 
 export const loginUser = (email, password) => {
-  return (dispatch,getState) => {
+  return (dispatch) => {
     dispatch(sessionLoading())
     feathersClient.authenticate({
       strategy: 'local',
@@ -50,19 +49,21 @@ export const loginUser = (email, password) => {
       password: password
     })
     .then(response => {
-      console.log('Authenticated!', response);
+      //console.log('Authenticated!', response);
+      axios.defaults.headers.common['Authorization'] = response.accessToken;      
       return feathersClient.passport.verifyJWT(response.accessToken);
 
       
     })
     .then(payload => {
-      console.log('JWT Payload', payload);
+      //console.log('JWT Payload', payload);
+
       return feathersClient.service('users').get(payload.userId);
     })
     .then(user => {
       feathersClient.set('user', user);
       dispatch(sessionSuccess(user.id))
-      console.log('User', feathersClient.get('user'));
+      //console.log('User', feathersClient.get('user'));
     })
     .catch(function(error){
       dispatch(sessionError(error));
@@ -78,7 +79,7 @@ export const signupUser = (email, password) => {
       password: password,
     })
     .then(function (response) {
-      dispatch(sessionSuccess(response.data))
+      dispatch(sessionSuccess(response.data.id))
     })
     .catch(function (error) {
       dispatch(sessionError(error));
